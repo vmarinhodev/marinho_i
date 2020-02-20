@@ -1,21 +1,66 @@
 import React from "react"
-import { Link } from "gatsby"
+import { graphql, StaticQuery } from "gatsby"
 
 import Layout from "../components/layout"
-import Image from "../components/image"
 import SEO from "../components/seo"
 
-const IndexPage = () => (
-  <Layout>
-    <SEO title="Home" />
-    <h1>Hi people</h1>
-    <p>Welcome to your new Gatsby site.</p>
-    <p>Now go build something great.</p>
-    <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
-      <Image />
-    </div>
-    <Link to="/page-2/">Go to page 2</Link>
-  </Layout>
-)
+const SiteIndex = ({ data }, location) => {
+  const siteTitle = data.site.siteMetadata.title
+  const works = data.allMarkdownRemark.edges
+  let workCounter = 0
 
-export default IndexPage
+  return (
+    <Layout title={siteTitle}>
+      <SEO 
+        title="Work"
+        keywords={[`vmarinho`, `portfolio`, `gatsby`, `javascript`, `react`]}
+      />
+      {data.site.siteMetadata.description && ( 
+        
+          <h2>
+          {data.site.siteMetadata.description}
+          </h2>
+        
+      )}
+      
+      <div className="post-feed">
+        this is body div for home page
+      </div>
+
+    </Layout>
+  )
+}
+  const indexQuery = graphql`
+    query {
+      site {
+        siteMetadata {
+          title
+          description
+        }
+      }
+      allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+        edges {
+          node {
+            excerpt
+            fields {
+              slug
+            }
+            frontmatter {
+              date(formatString: "MMMM D, YYYY")
+              title
+              description
+            }
+          }
+        }
+      }
+    }
+  `
+
+  export default props => (
+    <StaticQuery
+      query={indexQuery}
+      render={data => (
+        <SiteIndex location={props.location} props data={data} {...props} />
+      )}
+    />
+  )
